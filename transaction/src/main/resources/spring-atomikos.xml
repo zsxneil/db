@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!--==========针对两个库，各配置一个AtomikosDataSourceBean，底层都使用MysqlXADataSource=====================-->
+    <!--配置数据源db_user-->
+    <bean id="db_user" class="com.atomikos.jdbc.AtomikosDataSourceBean" init-method="init" destroy-method="close">
+        <property name="uniqueResourceName" value="ds1" />
+        <property name="xaDataSourceClassName" value="com.mysql.jdbc.jdbc2.optional.MysqlXADataSource"/>
+        <property name="xaProperties">
+            <props>
+                <prop key="url">jdbc:mysql://localhost:3306/db_user</prop>
+                <prop key="user">root</prop>
+                <prop key="password">123456</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!--配置数据源db_account-->
+    <bean id="db_account" class="com.atomikos.jdbc.AtomikosDataSourceBean" init-method="init" destroy-method="close">
+        <property name="uniqueResourceName" value="ds2" />
+        <property name="xaDataSourceClassName" value="com.mysql.jdbc.jdbc2.optional.MysqlXADataSource"/>
+        <property name="xaProperties">
+            <props>
+                <prop key="url">jdbc:mysql://localhost:3306/db_account</prop>
+                <prop key="user">root</prop>
+                <prop key="password">123456</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!--=============针对两个数据源，各配置一个SqlSessionFactoryBean============ -->
+    <bean id="ssf_user" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="db_user"/>
+    </bean>
+    <bean id="ssf_account" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="db_account"/>
+    </bean>
+
+    <!--=============针对两个SqlSessionFactoryBean，各配置一个MapperScannerConfigurer============ -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="sqlSessionFactoryBeanName" value="ssf_user"/>
+        <!--指定com.my.atomikos.spring.mapper.db_user包下的UserMapper接口使用ssf_user获取底层数据库连接-->
+        <property name="basePackage" value="com.my.atomikos.spring.mapper.db_user"/>
+    </bean>
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="sqlSessionFactoryBeanName" value="ssf_account"/>
+        <!--指定com.my.atomikos.spring.mapper.db_account包下的UserMapper接口使用ssf_account获取底层数据库连接-->
+        <property name="basePackage" value="com.my.atomikos.spring.mapper.db_account"/>
+    </bean>
+
+    <!--================配置atomikos事务管理器========================-->
+    <bean id="atomikosTransactionManager" class="com.atomikos.icatch.jta.UserTransactionManager" init-method="init" destroy-method="close">
+        <property name="forceShutdown" value="false"/>
+    </bean>
+
+    <!--============配置spring的JtaTransactionManager，底层委派给atomikos进行处理===============-->
+    <bean id="jtaTransactionManager" class="org.springframework.transaction.jta.JtaTransactionManager">
+        <property name="transactionManager" ref="atomikosTransactionManager"/>
+    </bean>
+
+    <!--配置spring声明式事务管理器-->
+    <tx:annotation-driven transaction-manager="jtaTransactionManager"/>
+
+    <bean id="jtaService" class="com.my.atomikos.spring.service.JTAService"/>
+</beans>
