@@ -4,12 +4,9 @@ import io.shardingjdbc.core.api.ShardingDataSourceFactory;
 import io.shardingjdbc.core.api.config.ShardingRuleConfiguration;
 import io.shardingjdbc.core.api.config.TableRuleConfiguration;
 import io.shardingjdbc.core.api.config.strategy.InlineShardingStrategyConfiguration;
-import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
+import org.apache.commons.dbcp.BasicDataSource;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,21 +34,7 @@ public class JavaConfigSample {
         // 获取数据源对象
         DataSource dataSource = ShardingDataSourceFactory.createDataSource(dataSourceMap, shardingRuleConfig, new ConcurrentHashMap(), new Properties());
 
-
-        String sql = "SELECT t.* FROM table_sharding t WHERE t.id in (?, ?, ?)";
-        try (
-            Connection conn = dataSource.getConnection();
-            PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
-            preparedStatement.setInt(1, 5);
-            preparedStatement.setInt(2, 1);
-            preparedStatement.setInt(3, 2);
-            try (ResultSet rs = preparedStatement.executeQuery()) {
-                while(rs.next()) {
-                    System.out.println(rs.getInt(1));
-                    System.out.println(rs.getString(2));
-                }
-            }
-        }
+        DBUtil.queryTest(dataSource);
 
     }
 

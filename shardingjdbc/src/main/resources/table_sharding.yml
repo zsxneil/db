@@ -1,0 +1,41 @@
+dataSources:
+  large0: !!org.apache.commons.dbcp.BasicDataSource
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/large0?useSSL=true
+    username: root
+    password: 123456
+  large1: !!org.apache.commons.dbcp.BasicDataSource
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/large1?useSSL=true
+    username: root
+    password: 123456
+  large2: !!org.apache.commons.dbcp.BasicDataSource
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/large2?useSSL=true
+    username: root
+    password: 123456
+  large3: !!org.apache.commons.dbcp.BasicDataSource
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/large3?useSSL=true
+    username: root
+    password: 123456
+  large4: !!org.apache.commons.dbcp.BasicDataSource
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/large4?useSSL=true
+    username: root
+    password: 123456
+
+shardingRule:
+  tables:
+    table_sharding:
+      actualDataNodes: large${0..4}.table_sharding
+      databaseStrategy:
+        inline:
+          shardingColumn: id
+          algorithmExpression: large${id % 5}
+      tableStrategy:
+        inline:
+          shardingColumn: id
+          algorithmExpression: table_sharding
+  props:
+    sql.show: true
