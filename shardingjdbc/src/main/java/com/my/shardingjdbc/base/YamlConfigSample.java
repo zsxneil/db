@@ -12,7 +12,8 @@ public class YamlConfigSample {
     public static void main(String[] args) throws IOException, SQLException {
         DataSource dataSource = ShardingDataSourceFactory.createDataSource(ResourceUtils.getFile("classpath:table_sharding.yml"));
 
-        DBUtil.queryTest(dataSource);
+//        DBUtil.queryTest(dataSource);
+        DBUtil.updateTest(dataSource);
     }
 
 }

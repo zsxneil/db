@@ -13,9 +13,9 @@ public class DBUtil {
         try (
             Connection conn = dataSource.getConnection();
             PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
-            preparedStatement.setInt(1, 5);
+            preparedStatement.setInt(1, 6);
             preparedStatement.setInt(2, 1);
-            preparedStatement.setInt(3, 2);
+            preparedStatement.setInt(3, 11);
             try (ResultSet rs = preparedStatement.executeQuery()) {
                 while(rs.next()) {
                     System.out.println(rs.getInt(1));
@@ -39,6 +39,27 @@ public class DBUtil {
                     System.out.println(rs.getString(2));
                 }
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void updateTest(DataSource dataSource) {
+        String sql = "update table_sharding set uuid = '123456' WHERE id in (?, ?, ?)";
+        try (
+            Connection conn = dataSource.getConnection();
+            PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
+            preparedStatement.setInt(1, 5);
+            preparedStatement.setInt(2, 2);
+            preparedStatement.setInt(3, 11);
+            int count = preparedStatement.executeUpdate();
+            System.out.println("update success count: " + count);
+//            try (ResultSet rs = preparedStatement.executeQuery()) {
+//                while(rs.next()) {
+//                    System.out.println(rs.getInt(1));
+//                    System.out.println(rs.getString(2));
+//                }
+//            }
         } catch (SQLException e) {
             e.printStackTrace();
         }

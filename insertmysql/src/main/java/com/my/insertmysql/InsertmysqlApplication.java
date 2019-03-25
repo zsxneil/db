@@ -25,7 +25,7 @@ public class InsertmysqlApplication {
 
 		@Override
 		public void run(ApplicationArguments args) throws Exception {
-			multiInsert.insertBatch(100000000);
+			multiInsert.insertBatch(1000000);
 		}
 	}
 
